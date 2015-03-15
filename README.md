@@ -1,6 +1,6 @@
 # Awesome List
 
-*More detailed description forthcoming. Until then... here's example HTML that uses all of the features of this suite of directives:*
+*More detailed description forthcoming. Until then... here's example HTML that uses all of the features in this suite of directives:*
 
 ```html
 <!-- "items" is the items in the full list, "displayed" is the items it'll show after filtering, sorting and paging -->
