@@ -19,16 +19,16 @@
             bindToController: true
         };
 
-        function controllerFn($scope, $attrs) {
+        function controllerFn($scope, $attrs, $parse) {
             this.page = 0;
             this.perPage = -1;
             this.resetSortClasses = resetSortClasses;
 
             $scope.$watch(() => {
                 // not sure if there's a better way to do this than to just listen to everything!
-                return [this.items, this.search, this.sort, this.reverse, this.page, this.perPage];
-            }, ([items, search, sort, reverse, page, perPage]) => {
-                var filtered = $filter('filter')(items, search) || [];
+                return [this.items, this.search, this.sort, this.reverse, this.page, this.perPage, this.searchFields, this.searchFn];
+            }, ([items, search, sort, reverse, page, perPage, searchFields, searchFn]) => {
+                var filtered = filterItems(items, search, searchFields, searchFn);
 
                 this.filtered = $filter('orderBy')(filtered, sort, reverse);
 
@@ -41,6 +41,30 @@
                 // this ensures we're only resetting the classes of *this* directive's children.
                 // that way, we can have multiple awesomeLists on one page
                 $scope.$broadcast('awesomeSort.resetClass');
+            }
+
+            function filterItems(items, search, fields, fn) {
+                search = (search || '').toLowerCase();
+
+                if (!fields && !fn) {
+                    // search all fields
+                    return $filter('filter')(items, search) || [];
+                } else if (fields) {
+                    // if no search term, return all items
+                    if (!search) return items;
+
+                    // only search the specified fields
+                    return $filter('filter')(items, item => {
+                        // see if any of the fields contain the str
+                        return fields.some(field => {
+                            field = ($parse(field)(item) || '').toLowerCase();
+                            return field.indexOf(search) > -1;
+                        });
+                    });
+                } else {
+                    // experimental; signature *very* likely to change
+                    return fn(items, search) || [];
+                }
             }
         }
     }

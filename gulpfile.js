@@ -7,7 +7,9 @@ var rename          = require('gulp-rename');
 var angularFilesort = require('gulp-angular-filesort');
 var plumber         = require('gulp-plumber');
 
+gulp.task('default', buildTask);
 gulp.task('build', buildTask);
+gulp.task('watch', ['build'], watchTask);
 
 function buildTask() {
     return gulp.src('src/*.js')
@@ -20,6 +22,10 @@ function buildTask() {
         .pipe(uglify())
         .pipe(rename('awesome-list.min.js'))
         .pipe(gulp.dest('dist'));
+}
+
+function watchTask() {
+    gulp.watch('src/*.js', ['build']);
 }
 
 function plumberError(err) {

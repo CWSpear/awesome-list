@@ -7,7 +7,7 @@
 <awesome-list items="users" displayed="displayedUsers">
     <div class="pre-table-header">
         <!-- input for search placed here -->
-        <awesome-search></awesome-search>
+        <awesome-search search-fields="['roles[0].name', 'name', 'email']"></awesome-search>
  
         <button class="btn btn-primary" ui-sref=".user({ id: 'new' })">Add User</button>
     </div>

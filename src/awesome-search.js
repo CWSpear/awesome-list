@@ -5,13 +5,16 @@
         .module('awesomeList')
         .directive('awesomeSearch', awesomeSearch);
 
-    function awesomeSearch() {
+    function awesomeSearch($parse) {
         return {
             require: '^awesomeList',
-            scope: {},
+            scope: {
+                searchFields: '=?',
+                searchFn: '&?',
+            },
             replace: true,
             template: '<input placeholder="Search" type="search" class="awesome-search" ng-model="search" ng-change="update(search)">',
-            link: linkFn
+            link: linkFn,
         };
 
         function linkFn(scope, elem, attrs, ctrl) {
@@ -19,6 +22,18 @@
             scope.update = function (search) {
                 ctrl.search = search;
             };
+
+            if (scope.searchFields && scope.searchFn) {
+                throw 'awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.';
+            }
+
+            console.log(scope.searchFields, scope.searchFn);
+
+            if (scope.searchFn) {
+                ctrl.searchFn = scope.searchFn;
+            } else if (scope.searchFields) {
+                scope.$watch('searchFields', fields => ctrl.searchFields = fields);
+            }
         }
     }
 })();

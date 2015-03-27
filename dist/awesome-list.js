@@ -8,7 +8,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     angular.module("awesomeList", []).directive("awesomeList", awesomeList);
 
     function awesomeList($filter, $parse) {
-        controllerFn.$inject = ["$scope", "$attrs"];
+        controllerFn.$inject = ["$scope", "$attrs", "$parse"];
         return {
             scope: { items: "=", displayed: "=" },
             // that word you use... I do not think it means what you think it means
@@ -22,7 +22,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             bindToController: true
         };
 
-        function controllerFn($scope, $attrs) {
+        function controllerFn($scope, $attrs, $parse) {
             var _this = this;
 
             this.page = 0;
@@ -31,9 +31,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
             $scope.$watch(function () {
                 // not sure if there's a better way to do this than to just listen to everything!
-                return [_this.items, _this.search, _this.sort, _this.reverse, _this.page, _this.perPage];
+                return [_this.items, _this.search, _this.sort, _this.reverse, _this.page, _this.perPage, _this.searchFields, _this.searchFn];
             }, function (_ref) {
-                var _ref2 = _slicedToArray(_ref, 6);
+                var _ref2 = _slicedToArray(_ref, 8);
 
                 var items = _ref2[0];
                 var search = _ref2[1];
@@ -41,8 +41,10 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
                 var reverse = _ref2[3];
                 var page = _ref2[4];
                 var perPage = _ref2[5];
+                var searchFields = _ref2[6];
+                var searchFn = _ref2[7];
 
-                var filtered = $filter("filter")(items, search) || [];
+                var filtered = filterItems(items, search, searchFields, searchFn);
 
                 _this.filtered = $filter("orderBy")(filtered, sort, reverse);
 
@@ -55,6 +57,30 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
                 // this ensures we're only resetting the classes of *this* directive's children.
                 // that way, we can have multiple awesomeLists on one page
                 $scope.$broadcast("awesomeSort.resetClass");
+            }
+
+            function filterItems(items, search, fields, fn) {
+                search = (search || "").toLowerCase();
+
+                if (!fields && !fn) {
+                    // search all fields
+                    return $filter("filter")(items, search) || [];
+                } else if (fields) {
+                    // if no search term, return all items
+                    if (!search) {
+                        return items;
+                    } // only search the specified fields
+                    return $filter("filter")(items, function (item) {
+                        // see if any of the fields contain the str
+                        return fields.some(function (field) {
+                            field = ($parse(field)(item) || "").toLowerCase();
+                            return field.indexOf(search) > -1;
+                        });
+                    });
+                } else {
+                    // experimental; signature *very* likely to change
+                    return fn(items, search) || [];
+                }
             }
         }
     }
@@ -110,22 +136,38 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
     angular.module("awesomeList").directive("awesomeSearch", awesomeSearch);
 
-    function awesomeSearch() {
+    function awesomeSearch($parse) {
         return {
             require: "^awesomeList",
-            scope: {},
+            scope: {
+                searchFields: "=?",
+                searchFn: "&?" },
             replace: true,
             template: "<input placeholder=\"Search\" type=\"search\" class=\"awesome-search\" ng-model=\"search\" ng-change=\"update(search)\">",
-            link: linkFn
-        };
+            link: linkFn };
 
         function linkFn(scope, elem, attrs, ctrl) {
             // using an ng-change instead of a $watch for performance
             scope.update = function (search) {
                 ctrl.search = search;
             };
+
+            if (scope.searchFields && scope.searchFn) {
+                throw "awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.";
+            }
+
+            console.log(scope.searchFields, scope.searchFn);
+
+            if (scope.searchFn) {
+                ctrl.searchFn = scope.searchFn;
+            } else if (scope.searchFields) {
+                scope.$watch("searchFields", function (fields) {
+                    return ctrl.searchFields = fields;
+                });
+            }
         }
     }
+    awesomeSearch.$inject = ["$parse"];
 })();
 
 (function () {
