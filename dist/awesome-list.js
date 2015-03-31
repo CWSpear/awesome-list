@@ -10,7 +10,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     function awesomeList($filter, $parse) {
         controllerFn.$inject = ["$scope", "$attrs", "$parse"];
         return {
-            scope: { items: "=", displayed: "=", initialSort: "@" },
+            scope: { items: "=", displayed: "=" },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -28,7 +28,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             this.page = 0;
             this.perPage = -1;
             this.resetSortClasses = resetSortClasses;
-            this.sort = $scope.initialSort;
+            this.sort = $attrs.initialSort;
 
             $scope.$watch(function () {
                 // not sure if there's a better way to do this than to just listen to everything!
@@ -198,20 +198,34 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
         function linkFn(scope, elem, attrs, listCtrl) {
             elem.addClass(SORTABLE_CLASS);
 
+            if (listCtrl.sort === attrs.awesomeSort) {
+                sortAsc();
+            } else if (listCtrl.sort === "-" + attrs.awesomeSort) {
+                listCtrl.sort = attrs.awesomeSort;
+                sortDesc();
+            }
+
             elem.bind("click", function () {
                 scope.$apply(function () {
-                    if (listCtrl.sort == attrs.awesomeSort) {
-                        listCtrl.reverse = !listCtrl.reverse;
-                        elem.toggleClass(SORTED_CLASS_REVERSE, listCtrl.reverse);
-                    } else {
-                        listCtrl.reverse = false;
-                        listCtrl.sort = attrs.awesomeSort;
-                        // this triggers broadcast('awesomeSort.resetClass')
-                        listCtrl.resetSortClasses();
-                        elem.addClass(SORTED_CLASS);
-                    }
+                    if (listCtrl.sort == attrs.awesomeSort) sortDesc();else sortAsc();
                 });
             });
+
+            function sortDesc() {
+                listCtrl.reverse = !listCtrl.reverse;
+                // we probably have SORTED_CLASS already applied, but there are
+                // some edge cases where we don't, and this doesn't hurt to re-apply
+                elem.addClass(SORTED_CLASS);
+                elem.toggleClass(SORTED_CLASS_REVERSE, listCtrl.reverse);
+            }
+
+            function sortAsc() {
+                listCtrl.reverse = false;
+                listCtrl.sort = attrs.awesomeSort;
+                // this triggers broadcast('awesomeSort.resetClass')
+                listCtrl.resetSortClasses();
+                elem.addClass(SORTED_CLASS);
+            }
         }
     }
 })();

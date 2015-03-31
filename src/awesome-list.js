@@ -7,7 +7,7 @@
 
     function awesomeList($filter, $parse) {
         return {
-            scope: { items: '=', displayed: '=', initialSort: '@' },
+            scope: { items: '=', displayed: '=' },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -23,7 +23,7 @@
             this.page = 0;
             this.perPage = -1;
             this.resetSortClasses = resetSortClasses;
-            this.sort = $scope.initialSort;
+            this.sort = $attrs.initialSort;
 
             $scope.$watch(() => {
                 // not sure if there's a better way to do this than to just listen to everything!
