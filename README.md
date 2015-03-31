@@ -4,7 +4,7 @@
 
 ```html
 <!-- "items" is the items in the full list, "displayed" is the items it'll show after filtering, sorting and paging -->
-<awesome-list items="users" displayed="displayedUsers">
+<awesome-list items="users" displayed="displayedUsers" initial-sort="name">
     <div class="pre-table-header">
         <!-- input for search placed here -->
         <awesome-search search-fields="['roles[0].name', 'name', 'email']"></awesome-search>

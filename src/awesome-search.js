@@ -27,8 +27,6 @@
                 throw 'awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.';
             }
 
-            console.log(scope.searchFields, scope.searchFn);
-
             if (scope.searchFn) {
                 ctrl.searchFn = scope.searchFn;
             } else if (scope.searchFields) {

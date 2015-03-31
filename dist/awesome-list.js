@@ -10,7 +10,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     function awesomeList($filter, $parse) {
         controllerFn.$inject = ["$scope", "$attrs", "$parse"];
         return {
-            scope: { items: "=", displayed: "=" },
+            scope: { items: "=", displayed: "=", initialSort: "@" },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -28,6 +28,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             this.page = 0;
             this.perPage = -1;
             this.resetSortClasses = resetSortClasses;
+            this.sort = $scope.initialSort;
 
             $scope.$watch(function () {
                 // not sure if there's a better way to do this than to just listen to everything!
@@ -155,8 +156,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             if (scope.searchFields && scope.searchFn) {
                 throw "awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.";
             }
-
-            console.log(scope.searchFields, scope.searchFn);
 
             if (scope.searchFn) {
                 ctrl.searchFn = scope.searchFn;
