@@ -25,11 +25,7 @@
             this.resetSortClasses = resetSortClasses;
             this.sort = $attrs.initialSort;
 
-            $scope.$watch(() => {
-                // if no list, we don't need to do anything here
-                if (!(this.items || []).length) return null;
-                return [(this.items || []).length, this.search, this.sort, this.reverse, this.page, this.perPage, (this.searchFields || []).join('|')].join('|');
-            }, (val, oldVal) => {
+            var render = function () {
                 var filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
 
                 this.filtered = $filter('orderBy')(filtered, this.sort, this.reverse);
@@ -37,7 +33,18 @@
                 var start = this.page * this.perPage;
                 var end   = start + this.perPage;
                 this.displayed = this.filtered.slice(start, end);
-            }, true);
+            }.bind(this);
+
+            this.$render = render;
+
+            // allow outside sources to trigger a render (i.e. when you update an item in list)
+            $scope.$on('awesomeList.render', render);
+
+            $scope.$watch(() => {
+                // if no list, we don't need to do anything here
+                if (!(this.items || []).length) return null;
+                return [(this.items || []).length, this.search, this.sort, this.reverse, this.page, this.perPage, (this.searchFields || []).join('|')].join('|');
+            }, render);
 
             function resetSortClasses() {
                 // this ensures we're only resetting the classes of *this* directive's children.
