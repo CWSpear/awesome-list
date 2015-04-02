@@ -75,7 +75,7 @@
             function enforcePageBounds(page) {
                 // ensure current page is within bounds, 0 >= page < pageCount
                 if (page < 0) page = 0;
-                else if (page >= scope.pageCount) page = scope.pageCount - 1;
+                else if (page > 0 && page >= scope.pageCount) page = scope.pageCount - 1;
                 return page;
             }
 

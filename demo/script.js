@@ -1,8 +1,10 @@
 (function () {
     angular
         .module('DemoApp', ['awesomeList'])
-        .controller('DemoCtrl', function ($scope, users) {
+        .controller('DemoCtrl', function ($scope, users, $timeout) {
+            // $timeout(function () {
                 $scope.users = users.get();
+            // }, 3000);
         })
         .factory('users', function () {
             return {
