@@ -111,7 +111,7 @@
                 return [ctrl.filtered.length, scope.perPage].join("|");
             }, render);
             if (scope.chompPages) scope.$watch(function () {
-                return enforcePageBounds(scope.perPage);
+                return enforcePageBounds(scope.curPage);
             }, render);
 
             function render() {

@@ -48,7 +48,7 @@
 
             scope.$watch('perPage', perPage => perPage && (ctrl.perPage = scope.perPage = perPage));
             scope.$watch(() => [ctrl.filtered.length, scope.perPage].join('|'), render);
-            if (scope.chompPages) scope.$watch(() => enforcePageBounds(scope.perPage), render);
+            if (scope.chompPages) scope.$watch(() => enforcePageBounds(scope.curPage), render);
 
             function render() {
                 scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.perPage);
