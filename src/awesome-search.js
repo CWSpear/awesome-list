@@ -5,15 +5,15 @@
         .module('awesomeList')
         .directive('awesomeSearch', awesomeSearch);
 
-    function awesomeSearch($parse) {
+    function awesomeSearch() {
         return {
             require: '^awesomeList',
             scope: {
                 searchFields: '=?',
-                searchFn: '&?',
+                searchFn: '&?'
             },
             replace: true,
-            template: '<input placeholder="Search" type="search" class="awesome-search" ng-model="search" ng-change="update(search)">',
+            template: '<input placeholder="Search" type="search" class="awesome-search" ng-model="search" ng-change="update(search)" />',
             link: linkFn,
         };
 

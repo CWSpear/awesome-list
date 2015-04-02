@@ -1,6 +1,6 @@
 {
   "name": "awesome-list",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "A set of AngularJS directives for a reusable filtering, sorting & paginating list without the need of controller logic.",
   "main": "dist/awesome-list.js",
   "scripts": {
@@ -34,6 +34,7 @@
     "gulp-plumber": "^1.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^1.1.0",
+    "gulp-util": "^3.0.4"
   },
   "dependencies": {}
 }

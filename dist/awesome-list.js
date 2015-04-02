@@ -1,7 +1,5 @@
 "use strict";
 
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
-
 (function () {
     "use strict";
 
@@ -31,27 +29,16 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             this.sort = $attrs.initialSort;
 
             $scope.$watch(function () {
-                // not sure if there's a better way to do this than to just listen to everything!
-                return [_this.items, _this.search, _this.sort, _this.reverse, _this.page, _this.perPage, _this.searchFields, _this.searchFn];
-            }, function (_ref) {
-                var _ref2 = _slicedToArray(_ref, 8);
+                return [(_this.items || []).length, _this.search, _this.sort, _this.reverse, _this.page, _this.perPage, (_this.searchFields || []).join("|")].join("|");
+            }, function (val, oldVal) {
+                var filtered = filterItems(_this.items, _this.search, _this.searchFields, _this.searchFn) || [];
 
-                var items = _ref2[0];
-                var search = _ref2[1];
-                var sort = _ref2[2];
-                var reverse = _ref2[3];
-                var page = _ref2[4];
-                var perPage = _ref2[5];
-                var searchFields = _ref2[6];
-                var searchFn = _ref2[7];
+                _this.filtered = $filter("orderBy")(filtered, _this.sort, _this.reverse);
 
-                var filtered = filterItems(items, search, searchFields, searchFn);
-
-                _this.filtered = $filter("orderBy")(filtered, sort, reverse);
-
-                var start = page * perPage;
-                var end = start + perPage;
+                var start = _this.page * _this.perPage;
+                var end = start + _this.perPage;
                 _this.displayed = _this.filtered.slice(start, end);
+                console.log(start, end, _this.displayed);
             }, true);
 
             function resetSortClasses() {
@@ -96,25 +83,51 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
     function awesomePagination() {
         return {
             require: "^awesomeList",
-            scope: {},
-            template: "\n                <div class=\"awesome-pagination\">\n                    <span ng-click=\"jump(curPage - 1)\">&laquo;</span>\n                    <span ng-click=\"jump(page)\" ng-repeat=\"page in pages\" ng-class=\"{ selected: curPage == page }\">{{ page + 1 }}</span>\n                    <span ng-click=\"jump(curPage + 1)\">&raquo;</span>\n                </div>\n            ",
+            scope: {
+                perPage: "=?",
+                chomp: "@?"
+            },
+            replace: true,
+            template: "\n                <ul class=\"awesome-pagination\">\n                    <li ng-class=\"{ disabled: curPage <= 0 }\">\n                        <span ng-click=\"jump(curPage - 1)\">&laquo;</span>\n                    </li>\n                    <li class=\"chomped\" ng-show=\"chompPages && chompStart\">\n                        <span>&hellip;</span>\n                    </li>\n                    <li ng-repeat=\"page in pages\" ng-class=\"{ active: curPage == page }\">\n                        <span ng-click=\"jump(page)\">{{ page + 1 }}</span>\n                    </li>\n                    <li class=\"chomped\" ng-show=\"chompPages && chompEnd\">\n                        <span>&hellip;</span>\n                    </li>\n                    <li ng-class=\"{ disabled: curPage >= pageCount - 1 }\">\n                        <span ng-click=\"jump(curPage + 1)\">&raquo;</span>\n                    </li>\n                </ul>\n            ",
             link: linkFn
         };
 
         function linkFn(scope, elem, attrs, ctrl) {
+            scope.chompPages = false;
             scope.curPage = ctrl.page = 0;
-            ctrl.perPage = 10;
+            ctrl.perPage = scope.perPage || 10;
+
+            if (attrs.chomp) {
+                scope.chompPages = true;
+            }
 
             scope.jump = setPage;
 
+            scope.$watch("perPage", function (perPage) {
+                return perPage && (ctrl.perPage = scope.perPage = perPage);
+            });
             scope.$watch(function () {
-                return ctrl.filtered.length;
-            }, function (len) {
-                scope.pageCount = Math.ceil(len / ctrl.perPage);
-                scope.pages = range(0, scope.pageCount);
+                return [ctrl.filtered.length, scope.perPage].join("|");
+            }, render);
+            if (scope.chompPages) scope.$watch("curPage", render);
+
+            function render() {
+                scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.perPage);
+
+                var start = 0;
+                var end = scope.pageCount;
+                if (scope.chompPages) {
+                    start = Math.max(0, Math.min(scope.pageCount - scope.chomp, scope.curPage - Math.floor(scope.chomp / 2)));
+                    scope.chompStart = start > 0;
+
+                    end = Math.min(scope.pageCount, start + scope.chomp * 1);
+                    scope.chompEnd = end < scope.pageCount;
+                }
+
+                scope.pages = range(start, end);
 
                 setPage(ctrl.page);
-            });
+            }
 
             function setPage(page) {
                 // ensure current page is within bounds, 0 >= page < pageCount
@@ -137,14 +150,15 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
     angular.module("awesomeList").directive("awesomeSearch", awesomeSearch);
 
-    function awesomeSearch($parse) {
+    function awesomeSearch() {
         return {
             require: "^awesomeList",
             scope: {
                 searchFields: "=?",
-                searchFn: "&?" },
+                searchFn: "&?"
+            },
             replace: true,
-            template: "<input placeholder=\"Search\" type=\"search\" class=\"awesome-search\" ng-model=\"search\" ng-change=\"update(search)\">",
+            template: "<input placeholder=\"Search\" type=\"search\" class=\"awesome-search\" ng-model=\"search\" ng-change=\"update(search)\" />",
             link: linkFn };
 
         function linkFn(scope, elem, attrs, ctrl) {
@@ -166,7 +180,6 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             }
         }
     }
-    awesomeSearch.$inject = ["$parse"];
 })();
 
 (function () {

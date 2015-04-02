@@ -26,16 +26,16 @@
             this.sort = $attrs.initialSort;
 
             $scope.$watch(() => {
-                // not sure if there's a better way to do this than to just listen to everything!
-                return [this.items, this.search, this.sort, this.reverse, this.page, this.perPage, this.searchFields, this.searchFn];
-            }, ([items, search, sort, reverse, page, perPage, searchFields, searchFn]) => {
-                var filtered = filterItems(items, search, searchFields, searchFn);
+                return [(this.items || []).length, this.search, this.sort, this.reverse, this.page, this.perPage, (this.searchFields || []).join('|')].join('|');
+            }, (val, oldVal) => {
+                var filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
 
-                this.filtered = $filter('orderBy')(filtered, sort, reverse);
+                this.filtered = $filter('orderBy')(filtered, this.sort, this.reverse);
 
-                var start = page * perPage;
-                var end   = start + perPage;
+                var start = this.page * this.perPage;
+                var end   = start + this.perPage;
                 this.displayed = this.filtered.slice(start, end);
+                console.log(start, end, this.displayed);
             }, true);
 
             function resetSortClasses() {

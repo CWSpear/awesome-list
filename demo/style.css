@@ -1,0 +1,11 @@
+.chomped {
+    cursor: default;
+}
+
+.chomped > a:hover, .chomped > span:hover {
+    background-color: #28bb9c !important;
+}
+
+[ng-click] {
+    cursor: pointer;
+}
