@@ -178,9 +178,9 @@
                 throw new Error("awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.");
             }
 
-            if (scope.searchFn) {
+            if (attrs.searchFn) {
                 ctrl.searchFn = scope.searchFn;
-            } else if (scope.searchFields) {
+            } else if (attrs.searchFields) {
                 scope.$watch("searchFields", function (fields) {
                     return ctrl.searchFields = fields;
                 });
