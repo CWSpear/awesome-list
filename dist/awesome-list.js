@@ -174,8 +174,8 @@
                 ctrl.search = search;
             };
 
-            if (scope.searchFields && scope.searchFn) {
-                throw "awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.";
+            if (attrs.searchFields && attrs.searchFn) {
+                throw new Error("awesomeSearch Directive: Attributes [searchFields] and [searchFn] are mutually exclusive. Use one or the other.");
             }
 
             if (scope.searchFn) {
