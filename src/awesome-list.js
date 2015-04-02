@@ -35,7 +35,6 @@
                 var start = this.page * this.perPage;
                 var end   = start + this.perPage;
                 this.displayed = this.filtered.slice(start, end);
-                console.log(start, end, this.displayed);
             }, true);
 
             function resetSortClasses() {
