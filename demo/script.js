@@ -2,7 +2,7 @@
     angular
         .module('DemoApp', ['awesomeList'])
         .controller('DemoCtrl', function ($scope, users) {
-            $scope.users = users.get();
+                $scope.users = users.get();
         })
         .factory('users', function () {
             return {

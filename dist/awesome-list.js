@@ -29,6 +29,8 @@
             this.sort = $attrs.initialSort;
 
             $scope.$watch(function () {
+                // if no list, we don't need to do anything here
+                if (!(_this.items || []).length) return null;
                 return [(_this.items || []).length, _this.search, _this.sort, _this.reverse, _this.page, _this.perPage, (_this.searchFields || []).join("|")].join("|");
             }, function (val, oldVal) {
                 var filtered = filterItems(_this.items, _this.search, _this.searchFields, _this.searchFn) || [];
@@ -38,7 +40,6 @@
                 var start = _this.page * _this.perPage;
                 var end = start + _this.perPage;
                 _this.displayed = _this.filtered.slice(start, end);
-                console.log(start, end, _this.displayed);
             }, true);
 
             function resetSortClasses() {
@@ -109,7 +110,9 @@
             scope.$watch(function () {
                 return [ctrl.filtered.length, scope.perPage].join("|");
             }, render);
-            if (scope.chompPages) scope.$watch("curPage", render);
+            if (scope.chompPages) scope.$watch(function () {
+                return enforcePageBounds(scope.perPage);
+            }, render);
 
             function render() {
                 scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.perPage);
@@ -130,9 +133,13 @@
             }
 
             function setPage(page) {
+                scope.curPage = ctrl.page = enforcePageBounds(page);
+            }
+
+            function enforcePageBounds(page) {
                 // ensure current page is within bounds, 0 >= page < pageCount
                 if (page < 0) page = 0;else if (page >= scope.pageCount) page = scope.pageCount - 1;
-                scope.curPage = ctrl.page = page;
+                return page;
             }
 
             function range(start, end) {

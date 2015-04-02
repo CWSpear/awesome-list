@@ -26,6 +26,8 @@
             this.sort = $attrs.initialSort;
 
             $scope.$watch(() => {
+                // if no list, we don't need to do anything here
+                if (!(this.items || []).length) return null;
                 return [(this.items || []).length, this.search, this.sort, this.reverse, this.page, this.perPage, (this.searchFields || []).join('|')].join('|');
             }, (val, oldVal) => {
                 var filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];

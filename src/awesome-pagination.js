@@ -48,7 +48,7 @@
 
             scope.$watch('perPage', perPage => perPage && (ctrl.perPage = scope.perPage = perPage));
             scope.$watch(() => [ctrl.filtered.length, scope.perPage].join('|'), render);
-            if (scope.chompPages) scope.$watch('curPage', render);
+            if (scope.chompPages) scope.$watch(() => enforcePageBounds(scope.perPage), render);
 
             function render() {
                 scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.perPage);
@@ -69,10 +69,14 @@
             }
 
             function setPage(page) {
+                scope.curPage = ctrl.page = enforcePageBounds(page);
+            }
+
+            function enforcePageBounds(page) {
                 // ensure current page is within bounds, 0 >= page < pageCount
                 if (page < 0) page = 0;
                 else if (page >= scope.pageCount) page = scope.pageCount - 1;
-                scope.curPage = ctrl.page = page;
+                return page;
             }
 
             function range(start, end) {
