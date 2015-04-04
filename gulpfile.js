@@ -7,10 +7,12 @@ var concat          = require('gulp-concat');
 var rename          = require('gulp-rename');
 var angularFilesort = require('gulp-angular-filesort');
 var plumber         = require('gulp-plumber');
+var karma           = require('karma').server;
 
 gulp.task('default', buildTask);
 gulp.task('build', buildTask);
 gulp.task('watch', ['build'], watchTask);
+gulp.task('test', ['build'], testTask)
 
 function buildTask() {
     return gulp.src('src/*.js')
@@ -26,6 +28,15 @@ function buildTask() {
 }
 
 function watchTask() {
+    gulp.watch('src/*.js', ['build']);
+}
+
+function testTask(done) {
+    karma.start({
+        configFile:  __dirname + '/karma.conf.js'
+    });
+
+    // karma watches dist files to re-run
     gulp.watch('src/*.js', ['build']);
 }
 

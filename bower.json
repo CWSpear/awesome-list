@@ -22,9 +22,9 @@
     "bower_components",
     "demo",
     "index.html",
-    ".jscsrc",
-    ".jshintrc",
     "gulpfile.js",
+    "package.json",
+    "karma.conf.js",
     "tests"
   ],
   "dependencies": {

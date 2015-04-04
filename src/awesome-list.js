@@ -30,11 +30,8 @@
             // allow outside sources to trigger a render (i.e. when you update an item in list)
             $scope.$on('awesomeList.render', this.$render);
 
-            $scope.$watch(() => {
-                // if no list, we don't need to do anything here
-                if (!(this.items || []).length) return null;
-                return [(this.items || []).length, this.search, this.sort, this.reverse, this.page, this.pageSize, (this.searchFields || []).join('|')].join('|');
-            }, this.$render);
+            // watch the list length
+            $scope.$watch(() => (this.items || []).length, this.$render);
 
             function render() {
                 let filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];

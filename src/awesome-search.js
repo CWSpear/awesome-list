@@ -21,6 +21,7 @@
             // using an ng-change instead of a $watch for performance
             scope.update = function (search) {
                 ctrl.search = search;
+                ctrl.$render();
             };
 
             if (attrs.searchFields && attrs.searchFn) {
@@ -28,9 +29,14 @@
             }
 
             if (attrs.searchFn) {
+                console.warn('searchFn is still untested');
                 ctrl.searchFn = scope.searchFn;
             } else if (attrs.searchFields) {
-                scope.$watch('searchFields', fields => ctrl.searchFields = fields);
+                ctrl.searchFields = scope.searchFeilds;
+                scope.$watch('searchFields', fields => {
+                    ctrl.searchFields = fields;
+                    ctrl.$render();
+                });
             }
         }
     }

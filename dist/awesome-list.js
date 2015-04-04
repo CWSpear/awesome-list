@@ -35,10 +35,9 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             // allow outside sources to trigger a render (i.e. when you update an item in list)
             $scope.$on("awesomeList.render", this.$render);
 
+            // watch the list length
             $scope.$watch(function () {
-                // if no list, we don't need to do anything here
-                if (!(_this.items || []).length) return null;
-                return [(_this.items || []).length, _this.search, _this.sort, _this.reverse, _this.page, _this.pageSize, (_this.searchFields || []).join("|")].join("|");
+                return (_this.items || []).length;
             }, this.$render);
 
             function render() {
@@ -114,12 +113,12 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             scope.jump = setPage;
 
             scope.$watch("pageSize", function (pageSize) {
-                return pageSize && (ctrl.pageSize = scope.pageSize = pageSize);
+                return pageSize && (ctrl.pageSize = scope.pageSize = pageSize) && ctrl.$render();
             });
             scope.$watch(function () {
                 return [ctrl.filtered.length, scope.pageSize].join("|");
             }, render);
-            if (scope.chompPages) scope.$watch(function () {
+            scope.$watch(function () {
                 return enforcePageBounds(scope.curPage);
             }, render);
 
@@ -140,6 +139,8 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
                 scope.pages = range(start, end);
 
                 setPage(ctrl.page);
+
+                ctrl.$render();
             }
 
             function findChompEnds() {
@@ -192,6 +193,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             // using an ng-change instead of a $watch for performance
             scope.update = function (search) {
                 ctrl.search = search;
+                ctrl.$render();
             };
 
             if (attrs.searchFields && attrs.searchFn) {
@@ -199,10 +201,13 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             }
 
             if (attrs.searchFn) {
+                console.warn("searchFn is still untested");
                 ctrl.searchFn = scope.searchFn;
             } else if (attrs.searchFields) {
+                ctrl.searchFields = scope.searchFeilds;
                 scope.$watch("searchFields", function (fields) {
-                    return ctrl.searchFields = fields;
+                    ctrl.searchFields = fields;
+                    ctrl.$render();
                 });
             }
         }
@@ -235,36 +240,40 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             });
         }
 
-        function linkFn(scope, elem, attrs, listCtrl) {
+        function linkFn(scope, elem, attrs, ctrl) {
             elem.addClass(SORTABLE_CLASS);
 
-            if (listCtrl.sort === attrs.awesomeSort) {
+            if (ctrl.sort === attrs.awesomeSort) {
                 sortAsc();
-            } else if (listCtrl.sort === "-" + attrs.awesomeSort) {
-                listCtrl.sort = attrs.awesomeSort;
+            } else if (ctrl.sort === "-" + attrs.awesomeSort) {
+                ctrl.sort = attrs.awesomeSort;
                 sortDesc();
             }
 
             elem.bind("click", function () {
                 scope.$apply(function () {
-                    if (listCtrl.sort == attrs.awesomeSort) sortDesc();else sortAsc();
+                    if (ctrl.sort == attrs.awesomeSort) sortDesc();else sortAsc();
                 });
             });
 
             function sortDesc() {
-                listCtrl.reverse = !listCtrl.reverse;
+                ctrl.reverse = !ctrl.reverse;
                 // we probably have SORTED_CLASS already applied, but there are
                 // some edge cases where we don't, and this doesn't hurt to re-apply
                 elem.addClass(SORTED_CLASS);
-                elem.toggleClass(SORTED_CLASS_REVERSE, listCtrl.reverse);
+                elem.toggleClass(SORTED_CLASS_REVERSE, ctrl.reverse);
+
+                ctrl.$render();
             }
 
             function sortAsc() {
-                listCtrl.reverse = false;
-                listCtrl.sort = attrs.awesomeSort;
+                ctrl.reverse = false;
+                ctrl.sort = attrs.awesomeSort;
                 // this triggers broadcast('awesomeSort.resetClass')
-                listCtrl.resetSortClasses();
+                ctrl.resetSortClasses();
                 elem.addClass(SORTED_CLASS);
+
+                ctrl.$render();
             }
         }
     }

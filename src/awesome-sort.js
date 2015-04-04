@@ -25,37 +25,41 @@
             });
         }
 
-        function linkFn(scope, elem, attrs, listCtrl) {
+        function linkFn(scope, elem, attrs, ctrl) {
             elem.addClass(SORTABLE_CLASS);
 
-            if (listCtrl.sort === attrs.awesomeSort) {
+            if (ctrl.sort === attrs.awesomeSort) {
                 sortAsc();
-            } else if (listCtrl.sort === `-${attrs.awesomeSort}`) {
-                listCtrl.sort = attrs.awesomeSort;
+            } else if (ctrl.sort === `-${attrs.awesomeSort}`) {
+                ctrl.sort = attrs.awesomeSort;
                 sortDesc();
             }
 
             elem.bind('click', function () {
                 scope.$apply(function () {
-                    if (listCtrl.sort == attrs.awesomeSort) sortDesc();
+                    if (ctrl.sort == attrs.awesomeSort) sortDesc();
                     else sortAsc();
                 });
             });
 
             function sortDesc() {
-                listCtrl.reverse = !listCtrl.reverse;
+                ctrl.reverse = !ctrl.reverse;
                 // we probably have SORTED_CLASS already applied, but there are
                 // some edge cases where we don't, and this doesn't hurt to re-apply
                 elem.addClass(SORTED_CLASS);
-                elem.toggleClass(SORTED_CLASS_REVERSE, listCtrl.reverse);
+                elem.toggleClass(SORTED_CLASS_REVERSE, ctrl.reverse);
+
+                ctrl.$render();
             }
 
             function sortAsc() {
-                listCtrl.reverse = false;
-                listCtrl.sort = attrs.awesomeSort;
+                ctrl.reverse = false;
+                ctrl.sort = attrs.awesomeSort;
                 // this triggers broadcast('awesomeSort.resetClass')
-                listCtrl.resetSortClasses();
+                ctrl.resetSortClasses();
                 elem.addClass(SORTED_CLASS);
+
+                ctrl.$render();
             }
         }
     }

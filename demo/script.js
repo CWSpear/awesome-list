@@ -2,7 +2,7 @@
     angular
         .module('DemoApp', ['awesomeList'])
         .controller('DemoCtrl', function ($scope, users, $timeout) {
-            $scope.users = users.get(10001, false);
+            $scope.users = users.get(12345, false);
         })
         .factory('users', function () {
             return {

@@ -46,9 +46,9 @@
 
             scope.jump = setPage;
 
-            scope.$watch('pageSize', pageSize => pageSize && (ctrl.pageSize = scope.pageSize = pageSize));
+            scope.$watch('pageSize', pageSize => pageSize && (ctrl.pageSize = scope.pageSize = pageSize) && ctrl.$render());
             scope.$watch(() => [ctrl.filtered.length, scope.pageSize].join('|'), render);
-            if (scope.chompPages) scope.$watch(() => enforcePageBounds(scope.curPage), render);
+            scope.$watch(() => enforcePageBounds(scope.curPage), render);
 
             function render() {
                 scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.pageSize);
@@ -60,6 +60,8 @@
                 scope.pages = range(start, end);
 
                 setPage(ctrl.page);
+
+                ctrl.$render();
             }
 
             function findChompEnds() {
