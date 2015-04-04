@@ -9,7 +9,7 @@
         return {
             require: '^awesomeList',
             scope: {
-                perPage: '=?',
+                pageSize: '=?',
                 chomp: '@?'
             },
             replace: true,
@@ -38,7 +38,7 @@
         function linkFn(scope, elem, attrs, ctrl) {
             scope.chompPages = false;
             scope.curPage = ctrl.page = 0;
-            ctrl.perPage = scope.perPage || 10;
+            ctrl.pageSize = scope.pageSize || 10;
 
             if (attrs.chomp) {
                 scope.chompPages = true;
@@ -46,26 +46,30 @@
 
             scope.jump = setPage;
 
-            scope.$watch('perPage', perPage => perPage && (ctrl.perPage = scope.perPage = perPage));
-            scope.$watch(() => [ctrl.filtered.length, scope.perPage].join('|'), render);
+            scope.$watch('pageSize', pageSize => pageSize && (ctrl.pageSize = scope.pageSize = pageSize));
+            scope.$watch(() => [ctrl.filtered.length, scope.pageSize].join('|'), render);
             if (scope.chompPages) scope.$watch(() => enforcePageBounds(scope.curPage), render);
 
             function render() {
-                scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.perPage);
+                scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.pageSize);
 
-                var start = 0;
-                var end = scope.pageCount;
-                if (scope.chompPages) {
-                    start = Math.max(0, Math.min(scope.pageCount - scope.chomp, scope.curPage - Math.floor(scope.chomp / 2)));
-                    scope.chompStart = start > 0;
-
-                    end = Math.min(scope.pageCount, start + (scope.chomp * 1));
-                    scope.chompEnd = end < scope.pageCount;
-                }
+                let start = 0;
+                let end = scope.pageCount;
+                if (scope.chompPages) [start, end] = findChompEnds();
 
                 scope.pages = range(start, end);
 
                 setPage(ctrl.page);
+            }
+
+            function findChompEnds() {
+                let start = Math.max(0, Math.min(scope.pageCount - scope.chomp, scope.curPage - Math.floor(scope.chomp / 2)));
+                scope.chompStart = start > 0;
+
+                let end = Math.min(scope.pageCount, start + (scope.chomp * 1));
+                scope.chompEnd = end < scope.pageCount;
+
+                return [start, end];
             }
 
             function setPage(page) {
@@ -80,7 +84,7 @@
             }
 
             function range(start, end) {
-                var ret = [];
+                let ret = [];
                 for (let i = start; i < end; i++) ret.push(i);
                 return ret;
             }

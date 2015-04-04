@@ -34,7 +34,7 @@
                 </thead>
                 <tbody>
                 <!-- note we're iterating the value of "displayed" attr from awesome-list -->
-                <tr class="selectable-row" ng-repeat="user in displayedUsers">
+                <tr class="selectable-row" ng-repeat="user in displayedUsers" ng-cloak>
                     <td>{{ user.name }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.roles[0].name }}</td>
@@ -43,7 +43,7 @@
             </table>
 
             <!-- single tag pagination! (opts forthcoming) -->
-            <awesome-pagination chomp="11" class="pagination pagination-sm"></awesome-pagination>
+            <awesome-pagination chomp="11" page-size="13" class="pagination pagination-sm"></awesome-pagination>
         </awesome-list>
     </div>
 

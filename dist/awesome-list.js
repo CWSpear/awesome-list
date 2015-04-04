@@ -1,5 +1,7 @@
 "use strict";
 
+var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
+
 (function () {
     "use strict";
 
@@ -24,30 +26,30 @@
             var _this = this;
 
             this.page = 0;
-            this.perPage = -1;
+            this.pageSize = -1;
             this.resetSortClasses = resetSortClasses;
             this.sort = $attrs.initialSort;
 
-            var render = (function () {
-                var filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
-
-                this.filtered = $filter("orderBy")(filtered, this.sort, this.reverse);
-
-                var start = this.page * this.perPage;
-                var end = start + this.perPage;
-                this.displayed = this.filtered.slice(start, end);
-            }).bind(this);
-
-            this.$render = render;
+            this.$render = render.bind(this);
 
             // allow outside sources to trigger a render (i.e. when you update an item in list)
-            $scope.$on("awesomeList.render", render);
+            $scope.$on("awesomeList.render", this.$render);
 
             $scope.$watch(function () {
                 // if no list, we don't need to do anything here
                 if (!(_this.items || []).length) return null;
-                return [(_this.items || []).length, _this.search, _this.sort, _this.reverse, _this.page, _this.perPage, (_this.searchFields || []).join("|")].join("|");
-            }, render);
+                return [(_this.items || []).length, _this.search, _this.sort, _this.reverse, _this.page, _this.pageSize, (_this.searchFields || []).join("|")].join("|");
+            }, this.$render);
+
+            function render() {
+                var filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
+
+                this.filtered = $filter("orderBy")(filtered, this.sort, this.reverse);
+
+                var start = this.page * this.pageSize;
+                var end = start + this.pageSize;
+                this.displayed = this.filtered.slice(start, end);
+            }
 
             function resetSortClasses() {
                 // this ensures we're only resetting the classes of *this* directive's children.
@@ -92,7 +94,7 @@
         return {
             require: "^awesomeList",
             scope: {
-                perPage: "=?",
+                pageSize: "=?",
                 chomp: "@?"
             },
             replace: true,
@@ -103,7 +105,7 @@
         function linkFn(scope, elem, attrs, ctrl) {
             scope.chompPages = false;
             scope.curPage = ctrl.page = 0;
-            ctrl.perPage = scope.perPage || 10;
+            ctrl.pageSize = scope.pageSize || 10;
 
             if (attrs.chomp) {
                 scope.chompPages = true;
@@ -111,32 +113,43 @@
 
             scope.jump = setPage;
 
-            scope.$watch("perPage", function (perPage) {
-                return perPage && (ctrl.perPage = scope.perPage = perPage);
+            scope.$watch("pageSize", function (pageSize) {
+                return pageSize && (ctrl.pageSize = scope.pageSize = pageSize);
             });
             scope.$watch(function () {
-                return [ctrl.filtered.length, scope.perPage].join("|");
+                return [ctrl.filtered.length, scope.pageSize].join("|");
             }, render);
             if (scope.chompPages) scope.$watch(function () {
                 return enforcePageBounds(scope.curPage);
             }, render);
 
             function render() {
-                scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.perPage);
+                scope.pageCount = Math.ceil(ctrl.filtered.length / ctrl.pageSize);
 
                 var start = 0;
                 var end = scope.pageCount;
                 if (scope.chompPages) {
-                    start = Math.max(0, Math.min(scope.pageCount - scope.chomp, scope.curPage - Math.floor(scope.chomp / 2)));
-                    scope.chompStart = start > 0;
+                    var _ref = findChompEnds();
 
-                    end = Math.min(scope.pageCount, start + scope.chomp * 1);
-                    scope.chompEnd = end < scope.pageCount;
+                    var _ref2 = _slicedToArray(_ref, 2);
+
+                    start = _ref2[0];
+                    end = _ref2[1];
                 }
 
                 scope.pages = range(start, end);
 
                 setPage(ctrl.page);
+            }
+
+            function findChompEnds() {
+                var start = Math.max(0, Math.min(scope.pageCount - scope.chomp, scope.curPage - Math.floor(scope.chomp / 2)));
+                scope.chompStart = start > 0;
+
+                var end = Math.min(scope.pageCount, start + scope.chomp * 1);
+                scope.chompEnd = end < scope.pageCount;
+
+                return [start, end];
             }
 
             function setPage(page) {
