@@ -1,137 +1,249 @@
-before(function () {
-    fixture.setBase('tests/fixtures');
-});
-
-describe('Awesome List', function () {
+(function () {
     var $compile;
     var $rootScope;
     var element;
 
-    // Load the myApp module, which contains the directive
-    beforeEach(module('awesomeList'));
-
-    // Store references to $rootScope and $compile
-    // so they are available to all tests in this describe block
-    beforeEach(inject(function (_$compile_, _$rootScope_) {
-        // The injector unwraps the underscores (_) from around the parameter names when matching
-        $compile = _$compile_;
-        $rootScope = _$rootScope_;
-
-        $rootScope.users = generateUsers(101);
-
+    before(function () {
+        fixture.setBase('tests/fixtures');
         fixture.load('basic.html');
-    }));
+        baseHTML = fixture.el.innerHTML;
+    });
 
-    describe('compiling with 101 users', function () {
-        beforeEach(function () {
-            element = $compile(fixture.el.innerHTML)($rootScope);
-            $rootScope.$digest();
+    describe('Awesome List', function () {
+        // Load the myApp module, which contains the directive
+        beforeEach(module('awesomeList'));
+
+        // Store references to $rootScope and $compile
+        // so they are available to all tests in this describe block
+        beforeEach(inject(function (_$compile_, _$rootScope_) {
+            // The injector unwraps the underscores (_) from around the parameter names when matching
+            $compile = _$compile_;
+            $rootScope = _$rootScope_;
+
+            $rootScope.users = generateUsers(101);
+        }));
+
+        describe('compiling with 101 users', function () {
+            beforeEach(function () {
+                element = $compile(baseHTML)($rootScope);
+                $rootScope.$digest();
+            });
+
+            initialExpectations();
+
+            describe('searching', repeatableSearchingTests);
+
+            describe('sorting', repeatableSortingTests);
+
+            describe('paging', repeatablePagingTests);
         });
 
+        describe('using searchFields', function () {
+            beforeEach(function () {
+                var html = baseHTML.replace('placeholder-search-fields', 'search-fields')
+                element = $compile(html)($rootScope);
+                $rootScope.$digest();
+            });
+
+            initialExpectations();
+
+            describe('searching', searchFieldsTests)
+
+            describe('other functionality still works', function () {
+                describe('searching', function () {
+                    repeatableSearchingTests({
+                        skipSearchInvisible: true
+                    });
+                });
+
+                describe('sorting', repeatableSortingTests);
+
+                describe('paging', repeatablePagingTests);
+            });
+        });
+    });
+
+    function expectRowCount(count) {
+        expect(rows()).to.have.length(count);
+    }
+
+    function expectPagerCount(count) {
+        expect(pagerListItem()).to.have.length(count);
+    }
+
+    function expectActivePage(index) {
+        expect(pagerListItem().eq(index)).to.have.class('active');
+    }
+
+    function expectFirstCell(name) {
+        expect(rows('td').first().text()).to.equal(name);
+    }
+
+    function searchFor(str) {
+        var input = search();
+        input.val(str);
+        input.change();
+    }
+
+    function sortColWithIndex(index) {
+        sort().eq(index).click();
+    }
+
+    function clickNext() {
+        element.find('.awesome-pagination li').last().find('span').click();
+    }
+
+    function clickPrev() {
+        element.find('.awesome-pagination li').first().find('span').click();
+    }
+
+    function clickPageWithIndex(index) {
+        pagerListItem().eq(index).find('span').click();
+    }
+
+    function rows(child) {
+        var elem = element.find('tbody tr');
+        if (child) {
+            elem = elem.find(child);
+        }
+        return elem;
+    }
+
+    function sort() {
+        return element.find('[awesome-sort]');
+    }
+
+    function pagerListItem(child) {
+        var elem = element.find('.awesome-pagination li[ng-repeat]');
+        if (child) {
+            elem = elem.find(child);
+        }
+        return elem;
+    }
+
+    function search() {
+        return element.find('.awesome-search');
+    }
+
+
+    function initialExpectations() {
         it('has 10 visible rows', function () {
-            expect(rows().length).to.equal(10);
+            expectRowCount(10);
         });
 
         it('has 11 items in the pager', function () {
-            expect(pagerListItem().length).to.equal(11);
+            expectPagerCount(11);
         });
+    }
+
+    function repeatableSearchingTests(opts) {
+        if (!opts) opts = {};
 
         it('has 1 item when search matches 1 item', function () {
-            var input = search();
-            input.val('James Bond');
-            input.change();
-            expect(rows().length).to.equal(1);
+            searchFor('James Bond');
+            expectRowCount(1);
+            expectPagerCount(1);
         });
 
         it('has 0 item when search matches 0 items', function () {
-            var input = search();
-            input.val('asdfljkhasfdliafsdljfsda');
-            input.change();
-            expect(rows().length).to.equal(0);
+            searchFor('asdfljkhasfdliafsdljfsda');
+            expectRowCount(0);
+            expectPagerCount(0);
         });
 
-        it('searches fields even if they aren\'t visible', function () {
-            var input = search();
-            input.val('TRY SEARCHING FOR THIS STRING');
-            input.change();
-            expect(rows().length).to.equal(10);
-            expect(pagerListItem().length).to.equal(11);
+        it('it should handle case-insensitive partial matches', function () {
+            searchFor('cameron');
+            expectRowCount(10);
+            expectPagerCount(10);
         });
 
+        if (!opts.skipSearchInvisible) {
+            it('searches fields even if they aren\'t visible', function () {
+                searchFor('TRY SEARCHING FOR THIS STRING');
+                expectRowCount(10);
+                expectPagerCount(11);
+            });
+        }
+    }
+
+    function repeatableSortingTests() {
         it('should sort', function () {
-            sort().first().click();
-            expect(rows('td').first().text()).to.equal('Cameron Spear');
+            sortColWithIndex(0);
+            expectFirstCell('Cameron Spear');
         });
 
         it('should sort in reverse', function () {
-            sort().first().click();
-            sort().first().click();
-            expect(rows('td').first().text()).to.equal('James Bond');
+            sortColWithIndex(0);
+            sortColWithIndex(0);
+            expectFirstCell('James Bond');
         });
 
-        it('page', function () {
-            sort().first().click();
-            pagerListItem().eq(10).find('span').click();
-            pagerListItem().eq(10).should.have.class('active');
-            expect(rows().length).to.equal(1);
-            expect(rows('td').first().text()).to.equal('James Bond');
+        it('should handle complex sort keys', function () {
+            sortColWithIndex(2);
+            expectFirstCell('Cameron Spear');
+            sortColWithIndex(2);
+        });
+    }
 
-            element.find('.awesome-pagination li').first().find('span').click();
-            pagerListItem().eq(9).should.have.class('active');
+    function repeatablePagingTests() {
+        it('should jump to page', function () {
+            sortColWithIndex(0);
+            clickPageWithIndex(10);
+            expectActivePage(10);
+            expectRowCount(1);
+            expectFirstCell('James Bond');
         });
 
-        function rows(child) {
-            var elem = element.find('tbody tr');
-            if (child) {
-                elem = elem.find(child);
-            }
-            return elem;
-        }
+        it('should page to next/prev page', function () {
+            expectActivePage(0);
+            clickNext();
+            expectActivePage(1);
+            clickNext();
+            expectActivePage(2);
+            clickNext();
+            expectActivePage(3);
+            clickPrev();
+            expectActivePage(2);
+        });
+    }
 
-        function sort() {
-            return element.find('[awesome-sort]');
-        }
 
-        function pagerListItem(child) {
-            var elem = element.find('.awesome-pagination li[ng-repeat]');
-            if (child) {
-                elem = elem.find(child);
-            }
-            return elem;
-        }
+    function searchFieldsTests () {
+        it('does not search fields that aren\'t in the search-fields attribute', function () {
+            searchFor('TRY SEARCHING FOR THIS STRING');
+            expectRowCount(0);
+            expectPagerCount(0);
+        });
+    }
 
-        function search() {
-            return element.find('.awesome-search');
-        }
-    });
-});
 
-function generateUsers(num, random) {
-    var users = _.map(_.range(num - 1), function (i) {
-        return {
-            id: i,
-            name: random ? faker.name.findName() : 'Cameron Spear',
-            email: random ? faker.internet.email() : 'cam@cameronspear.com',
-            wontBeSearchable: 'TRY SEARCHING FOR THIS STRING',
-            roles: _.map(_.range(_.random(1, 3)), function (j) {
-                return {
-                    id: j,
-                    name: random ? faker.company.catchPhraseNoun() : 'Developer ' + j
-                };
-            })
-        };
-    });
+    function generateUsers(num, random) {
+        var users = _.map(_.range(num - 1), function (i) {
+            return {
+                id: i,
+                name: random ? faker.name.findName() : 'Cameron Spear',
+                email: random ? faker.internet.email() : 'cam@cameronspear.com',
+                wontBeVisibleInTable: 'TRY SEARCHING FOR THIS STRING',
+                roles: _.map(_.range(_.random(1, 3)), function (j) {
+                    return {
+                        id: j,
+                        name: random ? faker.company.catchPhraseNoun() : 'Developer ' + j
+                    };
+                })
+            };
+        });
 
-    users.push({
-        id: num,
-        name: 'James Bond',
-        email: 'james@bond.com',
-        wontBeSearchable: 'TRY SEARCHING FOR THIS STRING',
-        roles: [{
-            id: 1,
-            name: 'Spy ' + 1
-        }]
-    });
+        users.push({
+            id: num,
+            name: 'James Bond',
+            email: 'james@bond.com',
+            wontBeVisibleInTable: 'TRY SEARCHING FOR THIS STRING',
+            roles: [{
+                id: 1,
+                name: 'Spy ' + 1
+            }]
+        });
 
-    return users;
-}
+        return users;
+    }
+})();
