@@ -33,10 +33,16 @@
             // watch the list length
             $scope.$watch(() => (this.items || []).length, this.$render);
 
-            function render() {
-                let filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
+            function render({ filter = true, sort = true } = {}) {
+                let filtered = this.filtered || [];
+                if (filter) {
+                    filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
+                }
 
-                this.filtered = $filter('orderBy')(filtered, this.sort, this.reverse);
+                this.filtered = filtered;
+                if (sort) {
+                    this.filtered = $filter('orderBy')(filtered, this.sort, this.reverse);
+                }
 
                 let start = this.page * this.pageSize;
                 let end   = start + this.pageSize;

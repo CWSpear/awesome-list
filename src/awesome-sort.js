@@ -49,7 +49,7 @@
                 elem.addClass(SORTED_CLASS);
                 elem.toggleClass(SORTED_CLASS_REVERSE, ctrl.reverse);
 
-                ctrl.$render();
+                ctrl.$render({ filter: false });
             }
 
             function sortAsc() {
@@ -59,7 +59,7 @@
                 ctrl.resetSortClasses();
                 elem.addClass(SORTED_CLASS);
 
-                ctrl.$render();
+                ctrl.$render({ filter: false });
             }
         }
     }

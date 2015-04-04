@@ -22,3 +22,15 @@
     -ms-user-select: none;
     user-select: none;
 }
+
+.awesome-sortable {
+    cursor: pointer;
+}
+
+.awesome-sorted:after {
+    content: '^';
+}
+
+.awesome-sorted.awesome-sorted-reverse:after {
+    content: 'v';
+}

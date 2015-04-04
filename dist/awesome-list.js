@@ -41,9 +41,22 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             }, this.$render);
 
             function render() {
-                var filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
+                var _ref = arguments[0] === undefined ? {} : arguments[0];
 
-                this.filtered = $filter("orderBy")(filtered, this.sort, this.reverse);
+                var _ref$filter = _ref.filter;
+                var filter = _ref$filter === undefined ? true : _ref$filter;
+                var _ref$sort = _ref.sort;
+                var sort = _ref$sort === undefined ? true : _ref$sort;
+
+                var filtered = this.filtered || [];
+                if (filter) {
+                    filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
+                }
+
+                this.filtered = filtered;
+                if (sort) {
+                    this.filtered = $filter("orderBy")(filtered, this.sort, this.reverse);
+                }
 
                 var start = this.page * this.pageSize;
                 var end = start + this.pageSize;
@@ -113,7 +126,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
             scope.jump = setPage;
 
             scope.$watch("pageSize", function (pageSize) {
-                return pageSize && (ctrl.pageSize = scope.pageSize = pageSize) && ctrl.$render();
+                return pageSize && (ctrl.pageSize = scope.pageSize = pageSize) && ctrl.$render({ filter: false, sort: false });
             });
             scope.$watch(function () {
                 return [ctrl.filtered.length, scope.pageSize].join("|");
@@ -140,7 +153,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
 
                 setPage(ctrl.page);
 
-                ctrl.$render();
+                ctrl.$render({ filter: false, sort: false });
             }
 
             function findChompEnds() {
@@ -263,7 +276,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
                 elem.addClass(SORTED_CLASS);
                 elem.toggleClass(SORTED_CLASS_REVERSE, ctrl.reverse);
 
-                ctrl.$render();
+                ctrl.$render({ filter: false });
             }
 
             function sortAsc() {
@@ -273,7 +286,7 @@ var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; }
                 ctrl.resetSortClasses();
                 elem.addClass(SORTED_CLASS);
 
-                ctrl.$render();
+                ctrl.$render({ filter: false });
             }
         }
     }
