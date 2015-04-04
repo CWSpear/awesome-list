@@ -63,11 +63,6 @@
         });
 
         describe('initial-sort', function () {
-            beforeEach(function () {
-                element = $compile(baseHTML)($rootScope);
-                $rootScope.$digest();
-            });
-
             describe('starting with an initial sort', function () {
                 beforeEach(function () {
                     var html = baseHTML.replace('placeholder-initial-sort="SORT_KEY"', 'initial-sort="email"');
@@ -108,6 +103,52 @@
                 });
 
                 initialExpectations();
+            });
+        });
+
+        describe('page-size', function () {
+            it('is 13 when page-size is 13', function () {
+                var html = baseHTML.replace('placeholder-page-size="PAGE_SIZE"', 'page-size="13"');
+                element = $compile(html)($rootScope);
+                $rootScope.$digest();
+
+                expectRowCount(13);
+                expectPagerCount(8);
+            });
+
+            it('is 5 when page-size is 5', function () {
+                var html = baseHTML.replace('placeholder-page-size="PAGE_SIZE"', 'page-size="5"');
+                element = $compile(html)($rootScope);
+                $rootScope.$digest();
+
+                expectRowCount(5);
+                expectPagerCount(21);
+
+                // just checking it does not revert or anything...
+                clickNext();
+
+                expectRowCount(5);
+                expectPagerCount(21);
+            });
+        });
+
+        describe('chomp', function () {
+            describe('chomps pagination to only display 3 when chomp is 3', function () {
+                beforeEach(function () {
+                    var html = baseHTML.replace('placeholder-chomp="CHOMP_SIZE"', 'chomp="3"');
+                    element = $compile(html)($rootScope);
+                    $rootScope.$digest();
+                });
+
+                it('has 3 list items', function () {
+                    expectPagerCount(3);
+                });
+
+                it('shows chomped buttons', function () {
+                    clickPageWithIndex(2);
+                    expect(element.find('.awesome-pagination li').eq(5).text().trim()).to.equal('…');
+                    expect(element.find('.awesome-pagination li').eq(1).text().trim()).to.equal('…');
+                });
             });
         });
     });

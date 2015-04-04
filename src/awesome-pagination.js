@@ -18,13 +18,13 @@
                     <li ng-class="{ disabled: curPage <= 0 }">
                         <span ng-click="jump(curPage - 1)">&laquo;</span>
                     </li>
-                    <li class="chomped" ng-show="chompPages && chompStart">
+                    <li class="chomped" ng-if="chompPages && chompStart">
                         <span>&hellip;</span>
                     </li>
                     <li ng-repeat="page in pages" ng-class="{ active: curPage == page }">
                         <span ng-click="jump(page)">{{ page + 1 }}</span>
                     </li>
-                    <li class="chomped" ng-show="chompPages && chompEnd">
+                    <li class="chomped" ng-if="chompPages && chompEnd">
                         <span>&hellip;</span>
                     </li>
                     <li ng-class="{ disabled: curPage >= pageCount - 1 }">
