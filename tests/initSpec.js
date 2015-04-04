@@ -38,7 +38,7 @@
             describe('paging', repeatablePagingTests);
         });
 
-        describe('using searchFields', function () {
+        describe('using search-fields', function () {
             beforeEach(function () {
                 var html = baseHTML.replace('placeholder-search-fields', 'search-fields')
                 element = $compile(html)($rootScope);
@@ -59,6 +59,55 @@
                 describe('sorting', repeatableSortingTests);
 
                 describe('paging', repeatablePagingTests);
+            });
+        });
+
+        describe('initial-sort', function () {
+            beforeEach(function () {
+                element = $compile(baseHTML)($rootScope);
+                $rootScope.$digest();
+            });
+
+            describe('starting with an initial sort', function () {
+                beforeEach(function () {
+                    var html = baseHTML.replace('placeholder-initial-sort="SORT_KEY"', 'initial-sort="email"');
+                    element = $compile(html)($rootScope);
+                    $rootScope.$digest();
+                });
+
+                it('is sorted at the start', function () {
+                    expectFirstCell('James Bond');
+                });
+
+                initialExpectations();
+            });
+
+            describe('starting with a reverse initial sort', function () {
+                beforeEach(function () {
+                    var html = baseHTML.replace('placeholder-initial-sort="SORT_KEY"', 'initial-sort="-email"');
+                    element = $compile(html)($rootScope);
+                    $rootScope.$digest();
+                });
+
+                it('is sorted at the start', function () {
+                    expectFirstCell('Cameron Spear');
+                });
+
+                initialExpectations();
+            });
+
+            describe('sorting with initial complex keys', function () {
+                beforeEach(function () {
+                    var html = baseHTML.replace('placeholder-initial-sort="SORT_KEY"', 'initial-sort="-roles[0].name"');
+                    element = $compile(html)($rootScope);
+                    $rootScope.$digest();
+                });
+
+                it('is sorted at the start', function () {
+                    expectFirstCell('James Bond');
+                });
+
+                initialExpectations();
             });
         });
     });
@@ -208,7 +257,7 @@
     }
 
 
-    function searchFieldsTests () {
+    function searchFieldsTests() {
         it('does not search fields that aren\'t in the search-fields attribute', function () {
             searchFor('TRY SEARCHING FOR THIS STRING');
             expectRowCount(0);
@@ -236,7 +285,7 @@
         users.push({
             id: num,
             name: 'James Bond',
-            email: 'james@bond.com',
+            email: '1spy@bond.com',
             wontBeVisibleInTable: 'TRY SEARCHING FOR THIS STRING',
             roles: [{
                 id: 1,

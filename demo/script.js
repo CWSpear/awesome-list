@@ -25,7 +25,7 @@
                     users.push({
                         id: num,
                         name: 'James Bond',
-                        email: 'james@bond.com',
+                        email: '1spy@bond.com',
                         wontBeSearchable: 'TRY SEARCHING FOR THIS STRING',
                         roles: [{
                             id: 1,
