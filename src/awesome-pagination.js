@@ -5,7 +5,7 @@
         .module('awesomeList')
         .directive('awesomePagination', awesomePagination);
 
-    function awesomePagination() {
+    function awesomePagination(awesomeOptions) {
         return {
             require: '^awesomeList',
             scope: {
@@ -16,19 +16,19 @@
             template: `
                 <ul class="awesome-pagination">
                     <li ng-class="{ disabled: curPage <= 0 }">
-                        <span ng-click="jump(curPage - 1)">&laquo;</span>
+                        <span ng-click="jump(curPage - 1)">{{:: paginationPrev }}</span>
                     </li>
                     <li class="chomped" ng-if="chompPages && chompStart">
                         <span>&hellip;</span>
                     </li>
                     <li ng-repeat="page in pages" ng-class="{ active: curPage == page }">
-                        <span ng-click="jump(page)">{{ page + 1 }}</span>
+                        <span ng-click="jump(page)">{{:: page + 1 }}</span>
                     </li>
                     <li class="chomped" ng-if="chompPages && chompEnd">
                         <span>&hellip;</span>
                     </li>
                     <li ng-class="{ disabled: curPage >= pageCount - 1 }">
-                        <span ng-click="jump(curPage + 1)">&raquo;</span>
+                        <span ng-click="jump(curPage + 1)">{{:: paginationNext }}</span>
                     </li>
                 </ul>
             `,
@@ -36,12 +36,16 @@
         };
 
         function linkFn(scope, elem, attrs, ctrl) {
+            scope.paginationPrev = awesomeOptions.paginationPrev;
+            scope.paginationNext = awesomeOptions.paginationNext;
+
             scope.chompPages = false;
             scope.curPage = ctrl.page = 0;
-            ctrl.pageSize = scope.pageSize || 10;
+            ctrl.pageSize = (scope.pageSize = scope.pageSize || awesomeOptions.pageSize);
 
-            if (attrs.chomp) {
+            if (attrs.chomp || awesomeOptions.chomp) {
                 scope.chompPages = true;
+                scope.chomp = scope.chomp || awesomeOptions.chomp;
             }
 
             scope.jump = setPage;
