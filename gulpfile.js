@@ -32,9 +32,18 @@ function watchTask() {
 }
 
 function testTask(done) {
-    karma.start({
+    var args = require('yargs').argv;
+
+    var opts = {
         configFile:  __dirname + '/karma.conf.js'
-    });
+    };
+
+    if (args.once) {
+        opts.singleRun = true;
+        opts.autoWatch = true;
+    };
+
+    karma.start(opts);
 
     // karma watches dist files to re-run
     gulp.watch('src/*.js', ['build']);

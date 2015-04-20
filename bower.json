@@ -20,6 +20,7 @@
     "**/.*",
     "node_modules",
     "bower_components",
+    "*.sublime-project",
     "demo",
     "index.html",
     "gulpfile.js",

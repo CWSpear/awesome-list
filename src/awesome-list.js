@@ -16,7 +16,7 @@
             // we don't actually use this in the template, but it's needed for bindToController
             controllerAs: 'awl',
             // this makes it easier to work with the controller in other directives
-            bindToController: true
+            bindToController: true,
         };
 
         function controllerFn($scope, $attrs, $parse) {

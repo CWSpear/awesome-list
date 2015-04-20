@@ -14,7 +14,7 @@
             require: '^awesomeList',
             scope: {},
             controller: controllerFn,
-            link: linkFn
+            link: linkFn,
         };
 
         function controllerFn($scope, $element) {

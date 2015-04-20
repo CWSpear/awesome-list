@@ -1,6 +1,10 @@
 (function () {
     angular
         .module('DemoApp', ['awesomeList'])
+        .config(function (awesomeOptionsProvider) {
+            awesomeOptionsProvider.setPaginationPrev('←');
+            awesomeOptionsProvider.setPaginationNext('→');
+        })
         .controller('DemoCtrl', function ($scope, users, $timeout) {
             $scope.users = users.get(12345, false);
         })
