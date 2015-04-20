@@ -11,6 +11,7 @@
             scope: {
                 pageSize: '=?',
                 chomp: '@?',
+                curPage: '=?',
             },
             replace: true,
             template: `

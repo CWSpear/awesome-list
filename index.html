@@ -12,7 +12,7 @@
     <div class="demo-spacer" style="height:80px"></div>
     <div class="container">
         <!-- "items" is the items in the full list, "displayed" is the items it'll show after filtering, sorting and paging -->
-        <awesome-list items="users" displayed="displayedUsers" initial-sort="email">
+        <awesome-list items="users" displayed="displayedUsers" filtered="filteredUsers" initial-sort="email">
             <div class="pre-table-header row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -42,8 +42,15 @@
                 </tbody>
             </table>
 
-            <!-- single tag pagination! (opts forthcoming) -->
-            <awesome-pagination chomp="7" page-size="13" class="pagination pagination-sm"></awesome-pagination>
+            <div class="center">
+                <!-- single tag pagination! (opts forthcoming) -->
+                <awesome-pagination ng-init="pageSize = 13" cur-page="curPage" chomp="7" page-size="pageSize" class="pagination pagination-sm"></awesome-pagination>
+
+                <div>
+                    Showing {{ (curPage) * pageSize + 1 }} - {{ ((curPage) * pageSize) + displayedUsers.length }} of {{ filteredUsers.length }}
+                    <span ng-show="filteredUsers.length < users.length">(filtered from a total of {{ users.length }})</span>
+                </div>
+            </div>
         </awesome-list>
     </div>
 
