@@ -7,7 +7,7 @@
 
     function awesomeList($filter, $parse) {
         return {
-            scope: { items: '=', displayed: '=' },
+            scope: { items: '=', displayed: '=', filtered: '=?' },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,

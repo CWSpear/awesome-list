@@ -34,3 +34,7 @@
 .awesome-sorted.awesome-sorted-reverse:after {
     content: 'v';
 }
+
+.center {
+    text-align: center;
+}

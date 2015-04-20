@@ -6,7 +6,7 @@
             awesomeOptionsProvider.setPaginationNext('→');
         })
         .controller('DemoCtrl', function ($scope, users, $timeout) {
-            $scope.users = users.get(12345, false);
+            $scope.users = users.get(20, false);
         })
         .factory('users', function () {
             return {

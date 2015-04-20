@@ -14,7 +14,7 @@ var _createClass = (function () { function defineProperties(target, props) { for
     function awesomeList($filter, $parse) {
         controllerFn.$inject = ["$scope", "$attrs", "$parse"];
         return {
-            scope: { items: '=', displayed: '=' },
+            scope: { items: '=', displayed: '=', filtered: '=?' },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -163,7 +163,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
             require: '^awesomeList',
             scope: {
                 pageSize: '=?',
-                chomp: '@?' },
+                chomp: '@?',
+                curPage: '=?' },
             replace: true,
             template: '\n                <ul class="awesome-pagination">\n                    <li ng-class="{ disabled: curPage <= 0 }">\n                        <span ng-click="jump(curPage - 1)">{{:: paginationPrev }}</span>\n                    </li>\n                    <li class="chomped" ng-if="chompPages && chompStart">\n                        <span>&hellip;</span>\n                    </li>\n                    <li ng-repeat="page in pages" ng-class="{ active: curPage == page }">\n                        <span ng-click="jump(page)">{{:: page + 1 }}</span>\n                    </li>\n                    <li class="chomped" ng-if="chompPages && chompEnd">\n                        <span>&hellip;</span>\n                    </li>\n                    <li ng-class="{ disabled: curPage >= pageCount - 1 }">\n                        <span ng-click="jump(curPage + 1)">{{:: paginationNext }}</span>\n                    </li>\n                </ul>\n            ',
             link: linkFn };
