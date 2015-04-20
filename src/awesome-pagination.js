@@ -10,7 +10,7 @@
             require: '^awesomeList',
             scope: {
                 pageSize: '=?',
-                chomp: '@?'
+                chomp: '@?',
             },
             replace: true,
             template: `
@@ -32,7 +32,7 @@
                     </li>
                 </ul>
             `,
-            link: linkFn
+            link: linkFn,
         };
 
         function linkFn(scope, elem, attrs, ctrl) {
