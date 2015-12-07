@@ -10,7 +10,7 @@
             require: '^awesomeList',
             scope: {
                 searchFields: '=?',
-                searchFn: '&?'
+                searchFn: '&?',
             },
             replace: true,
             template: '<input placeholder="Search" type="search" class="awesome-search" ng-model="search" ng-change="update(search)" />',

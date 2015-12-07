@@ -1,10 +1,10 @@
 'use strict';
 
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } };
+var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
 
-var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 (function () {
     'use strict';
@@ -14,7 +14,7 @@ var _createClass = (function () { function defineProperties(target, props) { for
     function awesomeList($filter, $parse) {
         controllerFn.$inject = ["$scope", "$attrs", "$parse"];
         return {
-            scope: { items: '=', displayed: '=', filtered: '=?' },
+            scope: { items: '=', displayed: '=', filtered: '=?', additionalFilters: '=?' },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -23,7 +23,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
             // we don't actually use this in the template, but it's needed for bindToController
             controllerAs: 'awl',
             // this makes it easier to work with the controller in other directives
-            bindToController: true };
+            bindToController: true
+        };
 
         function controllerFn($scope, $attrs, $parse) {
             var _this = this;
@@ -42,9 +43,12 @@ var _createClass = (function () { function defineProperties(target, props) { for
             $scope.$watch(function () {
                 return (_this.items || []).length;
             }, this.$render);
+            $scope.$watch(function () {
+                return _this.additionalFilters;
+            }, this.$render, true);
 
             function render() {
-                var _ref = arguments[0] === undefined ? {} : arguments[0];
+                var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
                 var _ref$filter = _ref.filter;
                 var filter = _ref$filter === undefined ? true : _ref$filter;
@@ -53,7 +57,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
                 var filtered = this.filtered || [];
                 if (filter) {
-                    filtered = filterItems(this.items, this.search, this.searchFields, this.searchFn) || [];
+                    filtered = filterItems(this.items, this.additionalFilters);
+                    filtered = searchFilter(filtered, this.search, this.searchFields, this.searchFn) || [];
                 }
 
                 this.filtered = filtered;
@@ -72,7 +77,14 @@ var _createClass = (function () { function defineProperties(target, props) { for
                 $scope.$broadcast('awesomeSort.resetClass');
             }
 
-            function filterItems(items, search, fields, fn) {
+            function filterItems(items, filters) {
+                console.log('additional filters', filters);
+                if (!filters) return items;
+
+                return $filter('filter')(items, filters);
+            }
+
+            function searchFilter(items, search, fields, fn) {
                 search = (search || '').toLowerCase();
 
                 if (!fields && !fn) {
@@ -80,9 +92,9 @@ var _createClass = (function () { function defineProperties(target, props) { for
                     return $filter('filter')(items, search) || [];
                 } else if (fields) {
                     // if no search term, return all items
-                    if (!search) {
-                        return items;
-                    } // only search the specified fields
+                    if (!search) return items;
+
+                    // only search the specified fields
                     return $filter('filter')(items, function (item) {
                         // see if any of the fields contain the str
                         return fields.some(function (field) {
@@ -143,6 +155,7 @@ var _createClass = (function () { function defineProperties(target, props) { for
                     if (!this.hasOwnProperty(key)) continue;
                     props[key] = this[key];
                 }
+
                 return props;
             }
         }]);
@@ -164,10 +177,12 @@ var _createClass = (function () { function defineProperties(target, props) { for
             scope: {
                 pageSize: '=?',
                 chomp: '@?',
-                curPage: '=?' },
+                curPage: '=?'
+            },
             replace: true,
             template: '\n                <ul class="awesome-pagination">\n                    <li ng-class="{ disabled: curPage <= 0 }">\n                        <span ng-click="jump(curPage - 1)">{{:: paginationPrev }}</span>\n                    </li>\n                    <li class="chomped" ng-if="chompPages && chompStart">\n                        <span>&hellip;</span>\n                    </li>\n                    <li ng-repeat="page in pages" ng-class="{ active: curPage == page }">\n                        <span ng-click="jump(page)">{{:: page + 1 }}</span>\n                    </li>\n                    <li class="chomped" ng-if="chompPages && chompEnd">\n                        <span>&hellip;</span>\n                    </li>\n                    <li ng-class="{ disabled: curPage >= pageCount - 1 }">\n                        <span ng-click="jump(curPage + 1)">{{:: paginationNext }}</span>\n                    </li>\n                </ul>\n            ',
-            link: linkFn };
+            link: linkFn
+        };
 
         function linkFn(scope, elem, attrs, ctrl) {
             scope.paginationPrev = awesomeOptions.paginationPrev;
@@ -200,15 +215,15 @@ var _createClass = (function () { function defineProperties(target, props) { for
                 var start = 0;
                 var end = scope.pageCount;
                 if (scope.chompPages) {
+                    ;
+
                     var _findChompEnds = findChompEnds();
 
                     var _findChompEnds2 = _slicedToArray(_findChompEnds, 2);
 
                     start = _findChompEnds2[0];
                     end = _findChompEnds2[1];
-                }
-
-                scope.pages = range(start, end);
+                }scope.pages = range(start, end);
 
                 setPage(ctrl.page);
 
@@ -260,7 +275,8 @@ var _createClass = (function () { function defineProperties(target, props) { for
             },
             replace: true,
             template: '<input placeholder="Search" type="search" class="awesome-search" ng-model="search" ng-change="update(search)" />',
-            link: linkFn };
+            link: linkFn
+        };
 
         function linkFn(scope, elem, attrs, ctrl) {
             // using an ng-change instead of a $watch for performance
@@ -302,13 +318,14 @@ var _createClass = (function () { function defineProperties(target, props) { for
             require: '^awesomeList',
             scope: {},
             controller: controllerFn,
-            link: linkFn };
+            link: linkFn
+        };
 
         function controllerFn($scope, $element) {
             // we listen to the parent to broadcast so we're only
             // resetting the awesomeSort classes in this awesomeList
             $scope.$on('awesomeSort.resetClass', function () {
-                $element.removeClass('' + SORTED_CLASS + ' ' + SORTED_CLASS_REVERSE);
+                $element.removeClass(SORTED_CLASS + ' ' + SORTED_CLASS_REVERSE);
             });
         }
 
