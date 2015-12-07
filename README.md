@@ -4,7 +4,7 @@
 
 ```html
 <!-- "items" is the items in the full list, "displayed" is the items it'll show after filtering, sorting and paging -->
-<awesome-list items="users" displayed="displayedUsers" initial-sort="name">
+<awesome-list items="users" displayed="displayedUsers" initial-sort="name" additional-filter="additionalFilter">
     <div class="pre-table-header row">
         <div class="col-md-4">
             <div class="form-group">

@@ -8,7 +8,7 @@
         .controller('DemoCtrl', function ($scope, users, $timeout) {
             $scope.users = users.get(20, false);
 
-            $scope.additionalFilters = {};
+            $scope.additionalFilter = {};
         })
         .factory('users', users);
 

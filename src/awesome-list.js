@@ -7,7 +7,7 @@
 
     function awesomeList($filter, $parse) {
         return {
-            scope: { items: '=', displayed: '=', filtered: '=?', additionalFilters: '=?' },
+            scope: { items: '=', displayed: '=', filtered: '=?', additionalFilter: '=?' },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -32,12 +32,12 @@
 
             // watch the list length
             $scope.$watch(() => (this.items || []).length, this.$render);
-            $scope.$watch(() => this.additionalFilters, this.$render, true);
+            $scope.$watch(() => this.additionalFilter, this.$render, true);
 
             function render({ filter = true, sort = true } = {}) {
                 let filtered = this.filtered || [];
                 if (filter) {
-                    filtered = filterItems(this.items, this.additionalFilters);
+                    filtered = filterItems(this.items, this.additionalFilter);
                     filtered = searchFilter(filtered, this.search, this.searchFields, this.searchFn) || [];
                 }
 
@@ -57,11 +57,10 @@
                 $scope.$broadcast('awesomeSort.resetClass');
             }
 
-            function filterItems(items, filters) {
-                console.log('additional filters', filters);
-                if (!filters) return items;
+            function filterItems(items, filter) {
+                if (!filter) return items;
 
-                return $filter('filter')(items, filters);
+                return $filter('filter')(items, filter);
             }
 
             function searchFilter(items, search, fields, fn) {
