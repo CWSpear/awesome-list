@@ -12,7 +12,7 @@
     <div class="demo-spacer" style="height:80px"></div>
     <div class="container">
         <!-- "items" is the items in the full list, "displayed" is the items it'll show after filtering, sorting and paging -->
-        <awesome-list items="users" displayed="displayedUsers" filtered="filteredUsers" initial-sort="email" additional-filters="additionalFilters">
+        <awesome-list items="users" displayed="displayedUsers" filtered="filteredUsers" initial-sort="email" additional-filter="additionalFilter">
             <div class="pre-table-header row">
                 <div class="form-group">
                     <div class="col-md-4">
@@ -23,7 +23,7 @@
                     <div class="col-md-4">
                         <div class="checkbox">
                             <label>
-                                <input ng-checked="additionalFilters.name = onlyJames ? 'James Bond' : undefined" ng-model="onlyJames" type="checkbox" />
+                                <input ng-checked="additionalFilter.name = only007 ? 'James Bond' : undefined" ng-model="only007" type="checkbox" />
                                 Only Show James Bond
                             </label>
                         </div>

@@ -14,7 +14,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     function awesomeList($filter, $parse) {
         controllerFn.$inject = ["$scope", "$attrs", "$parse"];
         return {
-            scope: { items: '=', displayed: '=', filtered: '=?', additionalFilters: '=?' },
+            scope: { items: '=', displayed: '=', filtered: '=?', additionalFilter: '=?' },
             // that word you use... I do not think it means what you think it means
             transclude: true,
             replace: true,
@@ -44,7 +44,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return (_this.items || []).length;
             }, this.$render);
             $scope.$watch(function () {
-                return _this.additionalFilters;
+                return _this.additionalFilter;
             }, this.$render, true);
 
             function render() {
@@ -57,7 +57,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 var filtered = this.filtered || [];
                 if (filter) {
-                    filtered = filterItems(this.items, this.additionalFilters);
+                    filtered = filterItems(this.items, this.additionalFilter);
                     filtered = searchFilter(filtered, this.search, this.searchFields, this.searchFn) || [];
                 }
 
@@ -77,11 +77,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 $scope.$broadcast('awesomeSort.resetClass');
             }
 
-            function filterItems(items, filters) {
-                console.log('additional filters', filters);
-                if (!filters) return items;
+            function filterItems(items, filter) {
+                if (!filter) return items;
 
-                return $filter('filter')(items, filters);
+                return $filter('filter')(items, filter);
             }
 
             function searchFilter(items, search, fields, fn) {
