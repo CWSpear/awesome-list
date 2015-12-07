@@ -33,6 +33,7 @@
                 if (!this.hasOwnProperty(key)) continue;
                 props[key] = this[key];
             }
+
             return props;
         }
     }

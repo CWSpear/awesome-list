@@ -1,0 +1,32 @@
+{
+  "extends": "eslint:recommended",
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "globals": {
+    "angular": true,
+    "_": true,
+    "faker": true
+  },
+  "rules": {
+    "no-bitwise": 2,
+    "camelcase": 2,
+    "curly": 0,
+    "eqeqeq": 0,
+    "wrap-iife": [2, "any"],
+    "indent": [2, 4, { "SwitchCase": 1 }],
+    "no-use-before-define": 0,
+    "new-cap": 2,
+    "no-caller": 2,
+    "quotes": [2, "single"],
+    "no-undef": 2,
+    "no-unused-vars": 0,
+    "strict": 0,
+    "brace-style": 0,
+    "one-var": 0,
+    "comma-dangle": [2, "always-multiline"],
+    "semi": [2, "always"]
+  }
+}
